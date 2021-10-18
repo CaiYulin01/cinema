@@ -1,22 +1,56 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import Home from '../views/Home.vue'
 
+// 一级路由
+const Film = () => import('@/views/Film')
+const Cinema = () => import('@/views/Cinema')
+const News = () => import('@/views/News')
+const Center = () => import('@/views/Center')
+const Login = () => import('@/views/Login')
+
+// 二级路由
+const Nowplaying = () => import('@/views/film/Nowplaying')
+const Comingsoon = () => import('@/views/film/Comingsoon')
 Vue.use(VueRouter)
 
 const routes = [
   {
-    path: '/',
-    name: 'Home',
-    component: Home
+    path: '/film',
+    component: Film,
+    children: [
+      {
+        path: 'nowplaying',
+        component: Nowplaying
+      },
+      {
+        path: 'comingsoon',
+        component: Comingsoon
+      },
+      {
+        path: '',
+        redirect: 'nowplaying'
+      }
+    ]
   },
   {
-    path: '/about',
-    name: 'About',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
+    path: '/cinema',
+    component: Cinema
+  },
+  {
+    path: '/news',
+    component: News
+  },
+  {
+    path: '/center',
+    component: Center
+  },
+  {
+    path: '/login',
+    component: Login
+  },
+  {
+    path: '*',
+    redirect: '/film'
   }
 ]
 
@@ -24,4 +58,21 @@ const router = new VueRouter({
   routes
 })
 
+const auth = {
+  isLogin () {
+    return false
+  }
+}
+// 全局路由守卫
+router.beforeEach((to, from, next) => {
+  if (to.path === '/center') {
+    if (auth.isLogin()) {
+      next()
+    } else {
+      next('/login')
+    }
+  } else {
+    next()
+  }
+})
 export default router
